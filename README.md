@@ -4,3 +4,5 @@
 * Teemu Palokangas: tpalokan at student dot oulu dot fi
 
 
+export FLASK_APP=menomeno
+export FLASK_ENV=development
