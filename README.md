@@ -9,6 +9,12 @@
     export FLASK_APP=menomeno
     export FLASK_ENV=development
 
+### Install project
+
+    # From top level folder
+
+    pip install -e .
+
 ### Ipython
 
 To work with ipython, need to push an application context. See https://flask-sqlalchemy.palletsprojects.com/en/2.x/contexts/:
