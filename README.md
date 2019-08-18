@@ -24,3 +24,6 @@ To work with ipython, need to push an application context. See https://flask-sql
     app.app_context().push()
     from menomeno.models import *
 
+### Disclaimer
+
+Flask application code structure and examples modeled after the [Flask tutorial](https://flask.palletsprojects.com/en/1.0.x/tutorial/) and its derivative [PWP Course material](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-summer-2019/). All other borrowed code is cleary indicated in code comments.
