@@ -11,4 +11,3 @@ dist/
 build/
 *.egg-info/
 .vscode/
-set_env.sh

@@ -86,7 +86,7 @@ def test_create_instances(app):
         venue = _get_venue(venuecity=city)
         event = _get_event(evenue=venue, ecategory=category, eorganizer=organizer)
 
-        # Commit instances
+        # Commit instances, all at once by just committing the event
         #db.session.add(city)
         #db.session.add(category)
         #db.session.add(organizer)
@@ -107,12 +107,13 @@ def test_create_instances(app):
         db_venue = Venue.query.first()
         db_cat = Category.query.first()
         db_org = Organizer.query.first()
-        assert db_city == Venue.query.first().city
+        assert db_city == db_venue.city
         assert db_cat == db_ev.category
-        assert db_cat == db_ev.organizer
+        assert db_org == db_ev.organizer
         assert db_venue == db_ev.venue
 
         assert db_ev in db_venue.events
         assert db_ev in db_org.events
         assert db_ev in db_cat.events
         assert db_venue in db_city.venues
+
