@@ -331,4 +331,41 @@ def test_event(app):
         with pytest.raises(IntegrityError):
             db.session.commit()
 
+def test_updates(app):
+    """ Test attribute updates """
+
+    with app.app_context():
+
+        # Create event with related objects
+        city = _get_city()
+        category = _get_category()
+        organizer = _get_organizer()
+        venue = _get_venue(venuecity=city)
+        event = _get_event(evenue=venue, ecategory=category, eorganizer=organizer)
+        db.session.add(event)
+        db.session.commit()
+
+        # Test that updatable attributes can be updated
+        city.name = "Pori"
+        category.name = "konferenssi"
+        organizer.email = "jussi@pussi.net"
+        organizer.password = "jjjj"
+        organizer.name = "jussi"
+        venue.name = "lava"
+        venue.url = "oulu.fi"
+        db.session.commit()
+        assert city.name == "Pori"
+        assert category.name == "konferenssi"
+        assert organizer.email == "jussi@pussi.net"
+        assert organizer.password == "jjjj"
+        assert organizer.name == "jussi"
+        assert venue.name == "lava"
+        assert venue.url == "oulu.fi"
+
+        # Test that foreign keys can be updated
+        event.city = _get_city(cityname="Helsinki")
+        event.venue = _get_venue(venuecity=event.city)
+        event.category = _get_category(categoryname="Porkkanansyönti")
+        event.organizer = _get_organizer(orgemail="norppa@saimaa.net")
+        db.session.commit()
 
