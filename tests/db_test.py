@@ -117,3 +117,70 @@ def test_create_instances(app):
         assert db_ev in db_cat.events
         assert db_venue in db_city.venues
 
+def test_ondelete_cascades(app):
+    """
+    The system is very rigid. If any of event's foreign key objects is deleted, the event is deleted.
+    For City, deletion cascades first to Venue and then to Event.
+    This test check whether these cascades work correctly.
+    """
+
+    with app.app_context():
+        
+        # Create and commit instances
+        city = _get_city()
+        category = _get_category()
+        organizer = _get_organizer()
+        venue = _get_venue(venuecity=city)
+        event = _get_event(evenue=venue, ecategory=category, eorganizer=organizer)
+        db.session.add(event)
+        db.session.commit()
+
+        # For Category: Make sure the event exists, cascade works and the put data back
+        assert Event.query.count() == 1
+        db.session.delete(category)
+        db.session.commit()
+        assert Event.query.count() == 0
+        category = _get_category()
+        event = _get_event(evenue=venue, ecategory=category, eorganizer=organizer)
+        db.session.add(event)
+        db.session.commit()
+
+        # For Venue: Make sure the event exists, cascade works and the put data back
+        assert Event.query.count() == 1
+        db.session.delete(venue)
+        db.session.commit()
+        assert Event.query.count() == 0
+        venue = _get_venue(venuecity=city)
+        event = _get_event(evenue=venue, ecategory=category, eorganizer=organizer)
+        db.session.add(event)
+        db.session.commit()
+
+        # For Organizer: Make sure the event exists, cascade works and the put data back
+        assert Event.query.count() == 1
+        db.session.delete(organizer)
+        db.session.commit()
+        assert Event.query.count() == 0
+        organizer = _get_organizer()
+        event = _get_event(evenue=venue, ecategory=category, eorganizer=organizer)
+        db.session.add(event)
+        db.session.commit()
+
+        # For City: Make sure the event exists and cascade works
+        assert Event.query.count() == 1
+        db.session.delete(city)
+        db.session.commit()
+        assert Event.query.count() == 0
+        assert Venue.query.count() == 0
+
+# def test_uniqueness(app):
+#     """ Test model attributes that should be unique """
+
+#     with app.app_context():
+
+#         city = _get_city()
+#         city2 = _get_city()
+#         with pytest.raises(IntegrityError):
+#             app.session.commit()
+
+
+
