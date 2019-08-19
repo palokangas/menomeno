@@ -1,3 +1,5 @@
+# These test omit length check because of sqlite limitations
+
 import os
 import tempfile
 import pytest
@@ -36,10 +38,7 @@ def app():
     os.close(db_fd)
     os.unlink(db_fname)
 
-#
-# Create getters for model values with defaults
-# 
-
+# Create getters for model values with parameters and defaults 
 def _get_city(cityname="Oulu"):
     return City(name=cityname)
 
@@ -172,15 +171,164 @@ def test_ondelete_cascades(app):
         assert Event.query.count() == 0
         assert Venue.query.count() == 0
 
-# def test_uniqueness(app):
-#     """ Test model attributes that should be unique """
+def test_uniqueness(app):
+    """
+    Test model attributes that should be unique:
+    city name, category name and organizer email
+    """
 
-#     with app.app_context():
+    with app.app_context():
 
-#         city = _get_city()
-#         city2 = _get_city()
-#         with pytest.raises(IntegrityError):
-#             app.session.commit()
+        city1 = _get_city()
+        city2 = _get_city()
+        db.session.add(city1)
+        db.session.add(city2)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
 
+        db.session.rollback()
+
+        organizer1 = _get_organizer(orgemail="t@p.net", orgpassword="asdfjklö")
+        organizer2 = _get_organizer(orgemail="t@p.net", orgpassword="asdfjklö")
+        db.session.add(organizer1)
+        db.session.add(organizer2)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+        category1 = _get_category()
+        category2 = _get_category()
+        db.session.add(category1)
+        db.session.add(category2)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+def test_category(app):
+    """ Test column values and restrictions of Category model """
+
+    with app.app_context():
+
+        category = _get_category()
+
+        # Check for NOT NULL
+        category.name = None
+        db.session.add(category)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+def test_city(app):
+    """
+    Test column values and restrictions of City model
+    """
+
+    with app.app_context():
+        city = _get_city()
+
+        # Check for NOT NULL
+        city.name = None
+        db.session.add(city)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+def test_organizer(app):
+    """ Test column values and restrictions of Organizer model """
+
+    with app.app_context():
+        organizer = _get_organizer()
+
+        # Check NOT NULLs
+        organizer.email = None
+        db.session.add(organizer)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+        organizer = _get_organizer()
+        organizer.password = None
+        db.session.add(organizer)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+        
+        db.session.rollback()
+
+        # Check that Organizer name is nullable
+        organizer = _get_organizer(orgname=None)
+        db.session.add(organizer)
+        db.session.commit()
+        assert organizer.name is None
+
+def test_venue(app):
+    """
+    Test Venue model attribute restrictions
+    """
+
+    with app.app_context():
+
+        # Check for NOT Null
+        city = _get_city()
+        venue = _get_venue(venuecity=city)
+        venue.name = None
+        db.session.add(venue)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+        # Check for nullable
+        venue.name = "Tuba"
+        venue.url = None
+        db.session.commit()
+        assert venue.url is None
+
+def test_event(app):
+    """ Test model Event for column attribute restrictions """
+
+    with app.app_context():
+        
+        # Test for NOT NULL attributes
+        event = _get_event()
+        db.session.add(event)
+        db.session.commit()
+
+        event.name = None
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+        event.name = "Tapahtuman nimi"
+        event.startTime = None
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+        # Test for nullable attributes 
+        event = _get_event()
+        event.description = None
+        db.session.add(event)
+        db.session.commit()
+        assert event.description is None
+
+        # Test for foreign keys that are not nullable: Venue, Organizer, Category
+        event.category = None
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+        event.category = _get_category(categoryname="Jumppa")
+        event.organizer = None
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+        event.organizer = _get_organizer(orgemail="j@p.net")
+        event.venue = None
+        with pytest.raises(IntegrityError):
+            db.session.commit()
 
 

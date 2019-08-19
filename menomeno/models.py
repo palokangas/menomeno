@@ -13,26 +13,26 @@ class Event(db.Model):
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(250), nullable=True)
     startTime = db.Column(db.DateTime, nullable=False)
-    venue_id = db.Column(db.Integer, db.ForeignKey("venue.id", ondelete="CASCADE"))
-    organizer_id = db.Column(db.Integer, db.ForeignKey("organizer.id", ondelete="CASCADE"))
-    category_id = db.Column(db.Integer, db.ForeignKey("category.id", ondelete="CASCADE"))
+    venue_id = db.Column(db.Integer, db.ForeignKey("venue.id", ondelete="CASCADE"), nullable=False)
+    organizer_id = db.Column(db.Integer, db.ForeignKey("organizer.id", ondelete="CASCADE"), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id", ondelete="CASCADE"), nullable=False)
 
     venue = db.relationship("Venue", back_populates="events")
     organizer = db.relationship("Organizer", back_populates="events")
     category = db.relationship("Category", back_populates="events")
 
 class Venue(db.Model):
-    """ Table: Venue """
+    """ Table: Venue of the Event"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     url = db.Column(db.String(50), nullable=True)
-    city_id = db.Column(db.Integer, db.ForeignKey("city.id", ondelete="CASCADE"))
+    city_id = db.Column(db.Integer, db.ForeignKey("city.id", ondelete="CASCADE"), nullable=False)
 
     events = db.relationship("Event", cascade="delete", back_populates="venue")
     city = db.relationship("City", back_populates="venues")
 
 class Organizer(db.Model):
-    """ Table: Organizer """
+    """ Table: Organizer of the Event"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=True)
     email = db.Column(db.String(100), nullable=False, unique=True)
@@ -41,21 +41,20 @@ class Organizer(db.Model):
     events = db.relationship("Event", cascade="delete", back_populates="organizer")
 
 class City(db.Model):
-    """ Table: City """
+    """ Table: City of the Venue"""
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=True, unique=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
     venues = db.relationship("Venue", cascade="delete", back_populates="city")
 
 class Category(db.Model):
-    """ Table: Category """
+    """ Table: Category of the Event"""
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=True, unique=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
     events = db.relationship("Event", cascade="delete", back_populates="category")
 
-print("Modules defined")
-
+# Command line function to initialize database
 @click.command("init-db")
 @with_appcontext
 def init_db_command():

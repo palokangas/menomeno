@@ -15,7 +15,6 @@ itsdangerous==1.1.0
 jedi==0.15.1
 Jinja2==2.10.1
 MarkupSafe==1.1.1
--e git+git@github.com:palokangas/menomeno.git@20c78ca900c649b21f69db1f51c19aeef15c153b#egg=menomeno
 more-itertools==7.2.0
 packaging==19.1
 parso==0.5.1
