@@ -9,11 +9,32 @@
     export FLASK_APP=menomeno
     export FLASK_ENV=development
 
-### Install project
+    # or by running a script
 
-    # From top level folder
+    ./set_env.sh
+
+### Python version, dependencies and installation of the project
+
+The project is using Python version 3.6.8. The rest of the dependencies can be installed inside a virtual environment with:
+
+    pip install -r requirements.txt
+
+To install the project
 
     pip install -e .
+
+To initialize database and populate it with simple test data
+
+    flask init-db
+    flask populate-models
+
+To run test, either:
+
+    # To run tests
+    pytest
+
+    # To run tests with coverage information
+    ./testcov.sh
 
 ### Ipython
 
@@ -27,3 +48,4 @@ To work with ipython, need to push an application context. See https://flask-sql
 ### Disclaimer
 
 Flask application code structure and examples modeled after the [Flask tutorial](https://flask.palletsprojects.com/en/1.0.x/tutorial/) and its derivative [PWP Course material](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-summer-2019/). All other borrowed code is cleary indicated in code comments.
+
