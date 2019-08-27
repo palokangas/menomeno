@@ -4,14 +4,22 @@
 * Teemu Palokangas: tpalokan at student dot oulu dot fi
 
 
+## To set up environment
+
+### Create virtual environment
+
+For example in python3-venv:
+
+    python3 -m venv menomeno
+
+Then
+
+    source path-to-menomeno/bin/activate
+
 ### Set environment variables
 
     export FLASK_APP=menomeno
     export FLASK_ENV=development
-
-    # or by running a script
-
-    ./set_env.sh
 
 ### Python version, dependencies and installation of the project
 
@@ -23,7 +31,7 @@ To install the project
 
     pip install -e .
 
-To initialize database and populate it with simple test data
+Optionally, to initialize database and populate it with simple test data
 
     flask init-db
     flask populate-models
