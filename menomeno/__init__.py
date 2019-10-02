@@ -37,5 +37,7 @@ def create_app(test_config=None):
     from . import api
     app.register_blueprint(api.api_bp)
 
+    print("App initialization complete. Returning app.")
+
     return app
 
