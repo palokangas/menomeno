@@ -1,3 +1,5 @@
+import json
+from flask import request, Response
 MIMETYPE = "application/vnd.collection+json"
 LINK_RELATIONS_URL = ""
 STORAGE_PROFILE = ""
@@ -9,6 +11,29 @@ class CollectionBuilder(dict):
     A class for managing dictionaries that represent Collection+JSON objects.
     It provides general shorthands for managing such objects.
     """
+
+    @staticmethod
+    def create_link(rel, href, prompt):
+        """
+        : param str rel: name of the link relation item
+        : param str value: uri of the link item item
+        : param str promp: description of the link item
+        """
+
+        return {'rel': rel, 'href': href, 'prompt': prompt}
+
+    @staticmethod
+    def create_data(name, value, prompt):
+        """
+        Method for creating valid json object
+
+        : param str name: name of the data item
+        : param str value: value of the data item
+        : param str promp: description of the data item
+
+        """
+
+        return {'name': name, 'value': value, 'prompt': prompt}
 
     def create_collection(self, href, links=None):
         """
@@ -93,6 +118,13 @@ class CollectionBuilder(dict):
             }
         except KeyError:
             print("KeyError. Did you forget to create the collection?")
+
+def create_error_response(status_code, title, message=None):
+    resource_url = request.path
+    body = CollectionBuilder()
+    body.create_collection(resource_url)
+    body.create_error(title, message)
+    return Response(json.dumps(body), status_code, mimetype=MIMETYPE)
 
 
 class MenoBuilder(CollectionBuilder):
