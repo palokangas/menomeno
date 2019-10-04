@@ -135,7 +135,9 @@ class City(Resource):
 
     def put(self, handle):
         """
-        Function for editing city information.
+        Function for editing city information. Gets values from Request,
+        returns 201 with location header for successful edit and
+        error messages for failed edits.
 
         : param str handle: Handle, ie. name of the city
         """
@@ -147,7 +149,7 @@ class City(Resource):
 
         col = CollectionBuilder()
         col.create_collection(CITY_COLLECTION_URL)
-
+        
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
