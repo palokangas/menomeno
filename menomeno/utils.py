@@ -126,7 +126,6 @@ def create_error_response(status_code, title, message=None):
     body.create_error(title, message)
     return Response(json.dumps(body), status_code, mimetype=MIMETYPE)
 
-
 class MenoBuilder(CollectionBuilder):
     """
     A class for creating collection+json objects for events

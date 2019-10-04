@@ -16,5 +16,8 @@ api.add_resource(city.City, CITY_URL)
 
 @api_bp.route('/')
 def entry():
-    return Response("This is the API entry point. It does not have hypermedia!")
+    return Response("This is the API entry point. This would be a good" \
+    " place to have documentation or hypermedia for api users." \
+    "\n But you can always try pointing your focus on <a" \
+    " href=\"/api/cities\">cities</a> for starters.")
 
