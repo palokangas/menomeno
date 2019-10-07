@@ -97,7 +97,6 @@ class CollectionBuilder(dict):
             if "template" not in self["collection"]:
                 self["collection"]["template"] = {"data": []}
 
-            print("here")
             self["collection"]["template"]["data"].append(data)
 
         except KeyError:
