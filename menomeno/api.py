@@ -7,7 +7,11 @@ from menomeno.urls import (
     CITY_URL,
     VENUE_COLLECTION_URL,
     VENUE_URL,
-    VENUE_EVENTS_URL
+    VENUE_EVENTS_URL,
+    ORGANIZER_URL,
+    ORGANIZER_EVENTS_URL,
+    EVENT_COLLECTION_URL,
+    EVENT_URL,
     #PROFILE_URL
 )
 
@@ -19,6 +23,9 @@ api.add_resource(city.CityItem, CITY_URL)
 api.add_resource(venue.VenueCollection, VENUE_COLLECTION_URL)
 api.add_resource(venue.VenueItem, VENUE_URL)
 api.add_resource(event.VenueEvents, VENUE_EVENTS_URL)
+api.add_resource(event.EventCollection, EVENT_COLLECTION_URL)
+api.add_resource(event.EventItem, EVENT_URL)
+api.add_resource(event.OrganizerEvents, ORGANIZER_EVENTS_URL)
 
 @api_bp.route('/')
 def entry():

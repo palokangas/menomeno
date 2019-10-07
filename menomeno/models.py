@@ -16,10 +16,14 @@ class Event(db.Model):
     venue_id = db.Column(db.Integer, db.ForeignKey("venue.id", ondelete="CASCADE"), nullable=False)
     organizer_id = db.Column(db.Integer, db.ForeignKey("organizer.id", ondelete="CASCADE"), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey("category.id", ondelete="CASCADE"), nullable=False)
+    url = db.Column(db.String(250), nullable=True, default="")
 
     venue = db.relationship("Venue", back_populates="events")
     organizer = db.relationship("Organizer", back_populates="events")
     category = db.relationship("Category", back_populates="events")
+
+    def set_url(self):
+        self.url = self.name + "-at-" + self.venue.name + "-" + self.startTime.strftime("%Y%m%d%H%M")
 
 class Venue(db.Model):
     """ Table: Venue of the Event"""

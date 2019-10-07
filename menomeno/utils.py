@@ -125,6 +125,16 @@ def create_error_response(status_code, title, message=None):
     body.create_error(title, message)
     return Response(json.dumps(body), status_code, mimetype=MIMETYPE)
 
+def get_value_for(json_field, template_object):
+    try:
+        json_list = template_object['template']['data']
+        target = next(item for item in json_list if item['name'] == json_field)
+        return target['value']
+    except KeyError:
+        return create_error_response(400, "Incomplete request",
+                            "Incomplete request - missing fields")
+
+
 class MenoBuilder(CollectionBuilder):
     """
     A class for creating collection+json objects for events

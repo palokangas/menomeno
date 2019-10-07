@@ -2,7 +2,7 @@ import json
 from flask import request, Response, url_for
 from flask_restful import Resource
 from menomeno.models import City
-from menomeno.utils import CollectionBuilder, create_error_response, MIMETYPE
+from menomeno.utils import CollectionBuilder, create_error_response, MIMETYPE, get_value_for
 from menomeno.urls import CITY_COLLECTION_URL, PROFILE_URL
 from menomeno import db
 
@@ -31,7 +31,7 @@ class CityCollection(Resource):
                                        city_item.name,
                                        prompt="City name")
             citylinks = col.create_link("venues-in",
-                                        (url_for("api.venue.venuecollection", cityhandle = city_item.name.lower())),
+                                        (url_for("api.venuecollection", cityhandle = city_item.name.lower())),
                                         "Venues in City")
 
             col.add_item(url_for("api.citycollection"),
@@ -69,7 +69,8 @@ class CityCollection(Resource):
                              "Request content type must be JSON")
 
         try:
-            cityname = request.json['value']
+            req = request.json
+            cityname = get_value_for('name', req)
             if City.query.filter_by(name=cityname).first() is not None:
                 return create_error_response(409, "City already exists",
                                              "The city name given already exists")
@@ -88,7 +89,7 @@ class CityCollection(Resource):
             db.session.add(new_city)
             db.session.commit()
             resp = Response(status=201)
-            resp.headers['location']= url_for('api.city', cityhandle=new_city.name)
+            resp.headers['location']= url_for('api.cityitem', cityhandle=new_city.name)
             return resp
         except Exception as e:
             print(e)
@@ -162,7 +163,8 @@ class CityItem(Resource):
                              "Request content type must be JSON")
 
         try:
-            cityname = request.json['value']
+            req = request.json
+            cityname = get_value_for('name', req)
             city_with_same_name = City.query.filter_by(name=cityname).first()
             oldcity = City.query.filter_by(name=cityhandle).first()
             if city_with_same_name is not None and city_with_same_name is not oldcity:
@@ -184,7 +186,7 @@ class CityItem(Resource):
             oldcity.name = cityname
             db.session.commit()
             resp = Response(status=201)
-            resp.headers['location']= url_for('api.city', cityhandle=cityname)
+            resp.headers['location']= url_for('api.cityitem', cityhandle=cityname)
             return resp
         except Exception as e:
             print(e)

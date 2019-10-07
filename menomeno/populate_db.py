@@ -19,16 +19,17 @@ def add_venue():
     pass
 
 def populate_models():
-    city = City(name="Oulu")
+    city = City(name="oulu")
     category = Category(name="music")
-    venue = Venue(name="45 Special", url="https://45cpecial.com", city=city)
+    venue = Venue(name="45 Special", url="https://45_special.com", city=city)
     organizer = Organizer(name="Helppo Heikki", email="heikki@helppo.fi", password="asASDdfa5")
-    event = Event(name = "Bunnyrabbits",
+    event = Event(name = "bunnyrabbits",
                   description = "New band on tour",
                   startTime = datetime(2019, 8, 15, 21, 00, 00),
                   venue = venue,
                   organizer = organizer,
                   category = category)
+    event.set_url()
 
     db.session.add(event)
     try:
