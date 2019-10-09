@@ -88,12 +88,12 @@ class EventCollection(Resource):
 
             col.add_item(url_for("api.eventitem", event_handle=event_item.url), eventdata, eventlinks)
 
-            col.add_template_data(col.create_data("name", "", "Event name"))
-            col.add_template_data(col.create_data("description", "", "Event description"))
-            col.add_template_data(col.create_data("startTime", "", "Start time of the Event"))
-            col.add_template_data(col.create_data("organizer", "", "Start time of the Event"))
-            col.add_template_data(col.create_data("venue", "", "Start time of the Event"))
-            col.add_template_data(col.create_data("city", "", "Start time of the Event"))
+        col.add_template_data(col.create_data("name", "", "Event name"))
+        col.add_template_data(col.create_data("description", "", "Event description"))
+        col.add_template_data(col.create_data("startTime", "", "Start time of the Event"))
+        col.add_template_data(col.create_data("organizer", "", "Organizer of the Event"))
+        col.add_template_data(col.create_data("venue", "", "Venue of the Event"))
+        col.add_template_data(col.create_data("city", "", "City of the Event"))
 
         return Response(json.dumps(col), 200, mimetype=MIMETYPE)
 
@@ -103,18 +103,9 @@ class EventCollection(Resource):
         object.
         """
 
-        if request.method != "POST":
-            return "POST method required", 405
-        else:
-            print("POSTing product information")
-
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
-            print("Problem with json formatting: {}. \n JSON provided was: \n {json.dumps(request.json)}".format(e))
-            return create_error_response(415, "Not JSON",
-                             "Request content type must be JSON")
-        except:
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
 
@@ -125,9 +116,9 @@ class EventCollection(Resource):
             venuename = get_value_for('venue', req)
             cityname = get_value_for('city', req)
             organizername = get_value_for('organizer', req)
-            starttime = get_value_for('startTime', req)
+            starttime_string = get_value_for('startTime', req)
 
-            starttime = datetime.strptime(starttime, '%Y-%m-%dT%H:%M:%S')
+            starttime = datetime.strptime(starttime_string, '%Y-%m-%dT%H:%M:%S')
 
             # Category is not implemented. Using just on category for all
             category = Category.query.first()
@@ -151,10 +142,6 @@ class EventCollection(Resource):
             return create_error_response(400, "Incomplete request",
                             "Incomplete request - missing fields")
 
-        except ValueError:
-            return create_error_response(400, "Invalid types",
-                            "Values in request are in wrong format. Check your time format.")
-
         newevent = Event()
         newevent.name = eventname
         newevent.description = eventdesc
@@ -164,6 +151,10 @@ class EventCollection(Resource):
         newevent.category = category
 
         newevent.set_url()
+
+        if Event.query.filter_by(url=newevent.url).first() is not None:
+                return create_error_response(409, "Event already exist",
+                                             "Event with same name, venue and time already exists.") 
 
         try:
             db.session.add(newevent)
@@ -254,10 +245,6 @@ class EventItem(Resource):
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
-            print("Problem with json formatting: {}. \n JSON provided was: \n {json.dumps(request.json)}".format(e))
-            return create_error_response(415, "Not JSON",
-                             "Request content type must be JSON")
-        except:
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
 
@@ -269,10 +256,6 @@ class EventItem(Resource):
         except KeyError:
             return create_error_response(400, "Incomplete request",
                             "Incomplete request - missing fields")
-
-        except ValueError:
-            return create_error_response(400, "Invalid types",
-                            "JSON body contains invalid information of invalid type.")
 
         try:
             event_item.name = new_name
@@ -296,11 +279,6 @@ class EventItem(Resource):
         if event_item is None:
             return create_error_response(404, "Event not found",
                                 "The API can not find the Event requested.")
-
-        if request.method != "DELETE":
-            return "DELETe method required", 405
-        else:
-            print("Deleting Event information")
 
         try:
             db.session.delete(event_item)

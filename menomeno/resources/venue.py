@@ -80,9 +80,6 @@ class VenueCollection(Resource):
         except (TypeError, ValueError) as e:
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
-        except:
-            return create_error_response(415, "Not JSON",
-                             "Request content type must be JSON")
 
         try:
             req = request.json
@@ -96,10 +93,6 @@ class VenueCollection(Resource):
         except KeyError:
             return create_error_response(400, "Incomplete request",
                             "Incomplete request - missing fields")
-
-        except ValueError:
-            return create_error_response(400, "Invalid types",
-                            "Weight and price must be numbers")
 
         new_venue = Venue()
         new_venue.name = venuename
@@ -189,9 +182,6 @@ class VenueItem(Resource):
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
-            return create_error_response(415, "Not JSON",
-                             "Request content type must be JSON")
-        except:
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
 

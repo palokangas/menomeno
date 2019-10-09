@@ -95,6 +95,19 @@ def _get_city_template(cityname):
                                    "value": "",
                                    "prompt": "URI of the Venue"}]}}
 
+def _get_event_template(name="newevent", venue = "venuename1-1", startTime="2018-05-28T21:00:00"):
+    """
+    Creates a valid JSON object to be used for PUT and POST tests.
+    """
+
+    return {"template": {"data": [{"name": "name", "value": name, "prompt": "not_tested"},
+                                  {"name": "description", "value": "desc", "prompt": "not_tested"},
+                                  {"name": "venue", "value": venue, "prompt": "not_tested"},
+                                  {"name": "city", "value": "city1", "prompt": "not_tested"},
+                                  {"name": "organizer", "value": "organizer1", "prompt": "not_tested"},
+                                  {"name": "startTime", "value": startTime, "prompt": "not_tested"}                                  
+                                  ]}}
+
 def _get_venue_template(venuename, venueurl):
     """
     Creates a valid JSON object to be used for PUT and POST tests.
@@ -463,6 +476,10 @@ class TestVenueItem(object):
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
 
+        # test with wrong city
+        resp = client.get(self.WRONGCITY_URL)
+        assert resp.status_code == 404
+
     def test_put(self, client):
         """
         Tests the PUT method. Checks all of the possible error codes, and also
@@ -484,14 +501,149 @@ class TestVenueItem(object):
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 409
 
-        # TÄHÄN JÄI KESKEN
         # test with wrong city
+        valid["template"]["data"][0]["value"] = "newvenue"
+        resp = client.put(self.WRONGCITY_URL, json=valid)
+        assert resp.status_code == 404
+
+        # test with valid (only change model)
         valid["template"]["data"][0]["value"] = "newvenue"
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 204
 
+        # remove field for 400
+        valid["template"]["data"][0].pop("value")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+        valid = _get_venue_template("newvenue", "newurl")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        resp = client.get(self.MODIFIED_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert body["collection"]["items"][0]["data"][0]["value"] == valid["template"]["data"][0]["value"]
+
+
+class TestEventCollection(object):
+    """
+    This class implements tests for each HTTP method in Event collection
+    resource.
+    """
+
+    RESOURCE_WITH_VENUE_URL = "/api/cities/city1/venues/venuename1-1/events/"
+    RESOURCE_WITH_ORGANIZER_URL = "/api/organizers/organizer1/events/"
+    RESOURCE_WITH_WRONGCITY_URL = "/api/cities/wrongcity/venues/venuename1-1/events/"
+    RESOURCE_WITH_WRONGVENUE_URL = "/api/cities/city1/venues/wrongvenue/events/"
+    RESOURCE_WITH_WRONGORGANIZER_URL = "/api/organizers/wrongorg/events/"
+    RESOURCE_COLLECTION_URL = "/api/events/"
+
+    def test_get(self, client):
+        """
+        Tests the GET method. Checks that the response status code is 200, and
+        then checks that the collection structure is valid and test data is
+        present. Also test the collection subclasses.
+        """
+
+        # Test event collection
+        resp = client.get(self.RESOURCE_COLLECTION_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_collection_validity(client, body)
+        assert len(body["collection"]["items"]) == 8
+
+        # Test subclasses of EventCollection
+        resp = client.get(self.RESOURCE_WITH_ORGANIZER_URL)
+        assert resp.status_code == 200     
+        resp = client.get(self.RESOURCE_WITH_VENUE_URL)
+        assert resp.status_code == 200
+        resp = client.get(self.RESOURCE_WITH_WRONGCITY_URL)
+        assert resp.status_code == 404
+        resp = client.get(self.RESOURCE_WITH_WRONGVENUE_URL)
+        assert resp.status_code == 404
+        resp = client.get(self.RESOURCE_WITH_WRONGORGANIZER_URL)
+        assert resp.status_code == 404
+
+
+    def test_post(self, client):
+        """
+        Tests the POST method. Checks all of the possible error codes, and
+        also checks that a valid request receives a 201 response with a
+        location header that leads into the newly created resource.
+        """
+
+        valid = _get_event_template()
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_COLLECTION_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_COLLECTION_URL, json=valid)
+        assert resp.status_code == 201
+        ending = "newevent-at-venuename1-1-201805282100"
+        assert resp.headers["Location"].endswith(self.RESOURCE_COLLECTION_URL + ending + "/")
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert len(body["collection"]["items"]) == 1
+
+        # remove model field for 400
+        valid["template"]["data"][0].pop("value")
+        resp = client.post(self.RESOURCE_COLLECTION_URL, json=valid)
+        assert resp.status_code == 400
+
+
+class TestEventItem(object):
+
+    RESOURCE_URL = "/api/events/event-1-1-1-at-venuename1-1-201901012101/"
+    INVALID_URL = "/api/events/wrongevent/"
+    EXISTING_URL = "/api/events/event-1-1-2-at-venuename1-1-201901012101/"
+    MODIFIED_URL = "/api/events/newevent-at-venuename1-1-201901012101/"
+
+    def test_get(self, client):
+        """
+        Tests the GET method. Checks that the response status code is 200, and
+        then checks that all of the expected attributes are present.
+        """
+        RESOURCE_URL = "/api/events/event-1-1-1-at-venuename1-1-201901012101/"
+
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_collection_validity(client, body)
+        assert body["collection"]["items"][0]["href"] == RESOURCE_URL
+        assert len(body["collection"]["items"]) == 1
+
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+
+    def test_put(self, client):
+        """
+        Tests the PUT method. Checks all of the possible error codes, and also
+        checks that a valid request receives a 204 response. Also tests that
+        when name is changed, the sensor can be found from a its new URI.
+        """
+
+        valid = _get_event_template(name="event-1-1-2", venue="venuename1-1", startTime="2019-01-01T21:02:00")
+
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+
+        # test with another event's information
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # test with wrong city
+        valid["template"]["data"][0]["value"] = "newevent"
+        resp = client.put(self.WRONGCITY_URL, json=valid)
+        assert resp.status_code == 404
+
         # test with valid (only change model)
-        valid["template"]["data"][0]["value"] = "newvenue"
+        valid["template"]["data"][0]["value"] = "newevent"
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 204
 
@@ -521,12 +673,6 @@ class TestVenueItem(object):
         assert resp.status_code == 404
         resp = client.delete(self.INVALID_URL)
         assert resp.status_code == 404
-
-
-
-
-
-
 
 
 
