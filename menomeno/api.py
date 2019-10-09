@@ -1,7 +1,6 @@
-from flask import Blueprint, Response, url_for, request, redirect
+from flask import Blueprint, Response
 from flask_restful import Api
-from menomeno.utils import CollectionBuilder
-from menomeno.resources import city, venue, event
+from menomeno.resources import city, venue, event, organizer
 from menomeno.urls import (
     CITY_COLLECTION_URL,
     CITY_URL,
@@ -11,8 +10,7 @@ from menomeno.urls import (
     ORGANIZER_URL,
     ORGANIZER_EVENTS_URL,
     EVENT_COLLECTION_URL,
-    EVENT_URL,
-    #PROFILE_URL
+    EVENT_URL
 )
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -26,6 +24,8 @@ api.add_resource(event.VenueEvents, VENUE_EVENTS_URL)
 api.add_resource(event.EventCollection, EVENT_COLLECTION_URL)
 api.add_resource(event.EventItem, EVENT_URL)
 api.add_resource(event.OrganizerEvents, ORGANIZER_EVENTS_URL)
+api.add_resource(organizer.OrganizerItem, ORGANIZER_URL)
+
 
 @api_bp.route('/')
 def entry():

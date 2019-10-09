@@ -1,5 +1,3 @@
-# Very rudimentary populate script. Just creates a single entry in each table.
-
 import click
 from flask.cli import with_appcontext
 from datetime import datetime
@@ -19,29 +17,42 @@ def add_venue():
     pass
 
 def populate_models():
-    city = City(name="oulu")
+    """
+    Creates dummy data for database elements
+    """
+
     category = Category(name="music")
-    venue = Venue(name="45 Special", url="https://45_special.com", city=city)
-    organizer = Organizer(name="Helppo Heikki", email="heikki@helppo.fi", password="asASDdfa5")
-    event = Event(name = "bunnyrabbits",
-                  description = "New band on tour",
-                  startTime = datetime(2019, 8, 15, 21, 00, 00),
-                  venue = venue,
-                  organizer = organizer,
-                  category = category)
-    event.set_url()
 
-    db.session.add(event)
-    try:
+    for i in range(1, 3):
+        city = City(name=f"city{i}")
+        db.session.add(city)
         db.session.commit()
-    except:
-        print("Commit failed. Rolling back.")
-        db.session.rollback()
 
-    print(event)
+        for j in range(1, 3):
+            venue = Venue(name=f"venuename{i}-{j}", url=f"https://venue{i}{j}.com", city=city)
+            organizer = Organizer(name=f"organizer{j}", email=f"organizer{i}{j}@helppo.fi", password="asASDdfa5")
+            db.session.add(venue)
+            db.session.add(organizer)
+            db.session.commit()
+
+            for k in range(1, 3):
+
+                event = Event(name = f"event-{i}-{j}-{k}",
+                            description = f"{i}{j}{k} band on tour",
+                            startTime = datetime(2019, i, j, 21, k, 00),
+                            venue = venue,
+                            organizer = organizer,
+                            category = category)
+                event.set_url()
+
+                db.session.add(event)
+                try:
+                    db.session.commit()
+                except:
+                    print("Commit failed. Rolling back.")
+                    db.session.rollback()
 
 @click.command("populate-models")
 @with_appcontext
 def populate():
     populate_models()
-

@@ -131,8 +131,7 @@ def get_value_for(json_field, template_object):
         target = next(item for item in json_list if item['name'] == json_field)
         return target['value']
     except KeyError:
-        return create_error_response(400, "Incomplete request",
-                            "Incomplete request - missing fields")
+        raise KeyError
 
 
 class MenoBuilder(CollectionBuilder):

@@ -70,11 +70,6 @@ class VenueCollection(Resource):
         : param str cityhandle: name of the city to add venue in
         """
 
-        if request.method != "POST":
-            return "POST method required", 405
-        else:
-            print("POSTing product information")
-
         city_item = City.query.filter_by(name=cityhandle).first()
         if city_item is None:
             return create_error_response(404, "City not found",
@@ -83,7 +78,6 @@ class VenueCollection(Resource):
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
-            print("Problem with json formatting: {}. \n JSON provided was: \n {json.dumps(request.json)}".format(e))
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
         except:
@@ -180,7 +174,7 @@ class VenueItem(Resource):
     def put(self, cityhandle, venue_handle):
         """
         Function for editing venue information. Gets values from Request,
-        returns 201 with location header for successful edit and
+        returns 204 with location header for successful edit and
         error messages for failed edits.
 
         : param str cityhandle: name of the city
@@ -192,15 +186,9 @@ class VenueItem(Resource):
             return create_error_response(404, "City not found",
                                 "The API can not find the City requested.")
 
-        if request.method != "PUT":
-            return "PUT method required", 405
-        else:
-            print("Editing product information")
-
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
-            print("Problem with json formatting: {}. \n JSON provided was: \n {json.dumps(request.json)}".format(e))
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
         except:
@@ -225,15 +213,11 @@ class VenueItem(Resource):
             return create_error_response(400, "Incomplete request",
                             "Incomplete request - missing fields")
 
-        except ValueError:
-            return create_error_response(400, "Invalid types",
-                            "Weight and price must be numbers")
-
         try:
             oldvenue.name = new_name
             oldvenue.url = new_url
             db.session.commit()
-            resp = Response(status=201)
+            resp = Response(status=204)
             resp.headers['location']= url_for('api.venueitem', cityhandle=city_item.name, venue_handle=oldvenue.name)
             return resp
         except Exception as e:

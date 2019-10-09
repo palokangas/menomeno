@@ -32,13 +32,13 @@ def app():
 
     with app.app_context():
         db.create_all()
-    
+
     yield app
 
     os.close(db_fd)
     os.unlink(db_fname)
 
-# Create getters for model values with parameters and defaults 
+# Create getters for model values with parameters and defaults
 def _get_city(cityname="Oulu"):
     return City(name=cityname)
 
@@ -124,7 +124,7 @@ def test_ondelete_cascades(app):
     """
 
     with app.app_context():
-        
+
         # Create and commit instances
         city = _get_city()
         category = _get_category()
@@ -250,7 +250,7 @@ def test_organizer(app):
         db.session.add(organizer)
         with pytest.raises(IntegrityError):
             db.session.commit()
-        
+
         db.session.rollback()
 
         # Check that Organizer name is nullable
@@ -286,7 +286,7 @@ def test_event(app):
     """ Test model Event for column attribute restrictions """
 
     with app.app_context():
-        
+
         # Test for NOT NULL attributes
         event = _get_event()
         db.session.add(event)
@@ -305,7 +305,7 @@ def test_event(app):
 
         db.session.rollback()
 
-        # Test for nullable attributes 
+        # Test for nullable attributes
         event = _get_event()
         event.description = None
         db.session.add(event)

@@ -235,7 +235,7 @@ class EventItem(Resource):
     def put(self, event_handle):
         """
         Function for editing event information. Gets values from Request,
-        returns 201 with location header for successful edit and
+        returns 204 with location header for successful edit and
         error messages for failed edits.
 
         : param str event_handle: url base of the venue
@@ -278,7 +278,7 @@ class EventItem(Resource):
             event_item.name = new_name
             event_item.description = new_description
             db.session.commit()
-            resp = Response(status=201)
+            resp = Response(status=204)
             resp.headers['location'] = url_for('api.eventitem', event_handle=event_item.url)
             return resp
         except Exception as e:

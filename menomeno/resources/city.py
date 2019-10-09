@@ -21,8 +21,9 @@ class CityCollection(Resource):
         """ Creates a response object for GET requests"""
 
         col = CollectionBuilder()
-        col_links = col.create_link("profile", PROFILE_URL, "Link to profile")
-        col.create_collection(CITY_COLLECTION_URL, col_links)
+        col_links = []
+        col_links.append(col.create_link("profile", PROFILE_URL, "Link to profile"))
+        col.create_collection(url_for("api.citycollection"), col_links)
 
         cities = City.query.all()
 
@@ -50,23 +51,17 @@ class CityCollection(Resource):
         object.
         """
 
-        if request.method != "POST":
-            return "POST method required", 405
-        else:
-            print("POSTing product information")
-
         col = CollectionBuilder()
-        col.create_collection(CITY_COLLECTION_URL)
+        col.create_collection(url_for("api.citycollection"))
 
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
-            print("Problem with json formatting: {}. \n JSON provided was: \n {json.dumps(request.json)}".format(e))
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
-        except:
-            return create_error_response(415, "Not JSON",
-                             "Request content type must be JSON")
+        #except:
+        #    return create_error_response(415, "Not JSON",
+        #                     "Request content type must be JSON")
 
         try:
             req = request.json
@@ -78,10 +73,6 @@ class CityCollection(Resource):
         except KeyError:
             return create_error_response(400, "Incomplete request",
                             "Incomplete request - missing fields")
-
-        except ValueError:
-            return create_error_response(400, "Invalid types",
-                            "Weight and price must be numbers")
 
         new_city = City()
         new_city.name = cityname
@@ -110,8 +101,9 @@ class CityItem(Resource):
         """
 
         col = CollectionBuilder()
-        col_links = col.create_link("profile", PROFILE_URL, "Link to profile")
-        col.create_collection(CITY_COLLECTION_URL, col_links)
+        col_links = []
+        col_links.append(col.create_link("profile", PROFILE_URL, "Link to profile"))
+        col.create_collection(url_for("api.citycollection"), col_links)
 
         city_item = City.query.filter_by(name=cityhandle).first()
         if city_item is None:
@@ -138,16 +130,11 @@ class CityItem(Resource):
     def put(self, cityhandle):
         """
         Function for editing city information. Gets values from Request,
-        returns 201 with location header for successful edit and
+        returns 204 with location header for successful edit and
         error messages for failed edits.
 
         : param str cityhandle: Handle, ie. name of the city
         """
-
-        if request.method != "PUT":
-            return "PUT method required", 405
-        else:
-            print("Editing product information")
 
         col = CollectionBuilder()
         col.create_collection(CITY_COLLECTION_URL)
@@ -155,12 +142,11 @@ class CityItem(Resource):
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
-            print("Problem with json formatting: {}. \n JSON provided was: \n {json.dumps(request.json)}".format(e))
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
-        except:
-            return create_error_response(415, "Not JSON",
-                             "Request content type must be JSON")
+        #except:
+        #    return create_error_response(415, "Not JSON",
+        #                     "Request content type must be JSON")
 
         try:
             req = request.json
@@ -178,14 +164,10 @@ class CityItem(Resource):
             return create_error_response(400, "Incomplete request",
                             "Incomplete request - missing fields")
 
-        except ValueError:
-            return create_error_response(400, "Invalid types",
-                            "Weight and price must be numbers")
-
         try:
             oldcity.name = cityname
             db.session.commit()
-            resp = Response(status=201)
+            resp = Response(status=204)
             resp.headers['location']= url_for('api.cityitem', cityhandle=cityname)
             return resp
         except Exception as e:
