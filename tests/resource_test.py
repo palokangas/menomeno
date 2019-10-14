@@ -95,7 +95,21 @@ def _get_city_template(cityname):
                                    "value": "",
                                    "prompt": "URI of the Venue"}]}}
 
-def _get_event_template(name="newevent", venue = "venuename1-1", startTime="2018-05-28T21:00:00"):
+def _get_organizer_template(name="organizer1", email="someemail"):
+    """
+    Creates a valid JSON object to be used for PUT and POST tests.
+    """  
+    return {"template": {"data": [
+                        {"name": "name", "value": name, "prompt": "not_tested"},
+                        {"name": "email", "value": email, "prompt": "not_tested"},
+                        {"name": "password", "value": "somepassword", "prompt": "not_tested"}
+    ]}}
+
+
+def _get_event_template(name="newevent",
+                        venue = "venuename1-1",
+                        startTime="2018-05-28T21:00:00",
+                        city="city1"):
     """
     Creates a valid JSON object to be used for PUT and POST tests.
     """
@@ -103,7 +117,7 @@ def _get_event_template(name="newevent", venue = "venuename1-1", startTime="2018
     return {"template": {"data": [{"name": "name", "value": name, "prompt": "not_tested"},
                                   {"name": "description", "value": "desc", "prompt": "not_tested"},
                                   {"name": "venue", "value": venue, "prompt": "not_tested"},
-                                  {"name": "city", "value": "city1", "prompt": "not_tested"},
+                                  {"name": "city", "value": city, "prompt": "not_tested"},
                                   {"name": "organizer", "value": "organizer1", "prompt": "not_tested"},
                                   {"name": "startTime", "value": startTime, "prompt": "not_tested"}                                  
                                   ]}}
@@ -630,36 +644,26 @@ class TestEventItem(object):
         resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
         assert resp.status_code == 415
 
+        # test with invalid url
         resp = client.put(self.INVALID_URL, json=valid)
         assert resp.status_code == 404
-
+        
         # test with another event's information
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 409
-
-        # test with wrong city
-        valid["template"]["data"][0]["value"] = "newevent"
-        resp = client.put(self.WRONGCITY_URL, json=valid)
-        assert resp.status_code == 404
-
-        # test with valid (only change model)
-        valid["template"]["data"][0]["value"] = "newevent"
-        resp = client.put(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 204
 
         # remove field for 400
         valid["template"]["data"][0].pop("value")
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 400
 
-        valid = _get_venue_template("newvenue", "newurl")
+        # test with valid (only change model)
+        valid = _get_event_template(name="newevent")
+        valid["template"]["data"][0]["value"] = "newevent"
         resp = client.put(self.RESOURCE_URL, json=valid)
-        resp = client.get(self.MODIFIED_URL)
-        assert resp.status_code == 200
-        body = json.loads(resp.data)
-        assert body["collection"]["items"][0]["data"][0]["value"] == valid["template"]["data"][0]["value"]
+        assert resp.status_code == 204
 
-    def _test_delete(self, client):
+    def test_delete(self, client):
         """
         Tests the DELETE method. Checks that a valid request reveives 204
         response and that trying to GET the sensor afterwards results in 404.
@@ -673,6 +677,63 @@ class TestEventItem(object):
         assert resp.status_code == 404
         resp = client.delete(self.INVALID_URL)
         assert resp.status_code == 404
+
+
+class TestOrganizerItem(object):
+
+    RESOURCE_URL = "/api/organizers/organizer1/"
+    INVALID_URL = "/api/organizers/wrongorg/"
+
+    def test_get(self, client):
+        """
+        Tests the GET method. Checks that the response status code is 200, and
+        then checks that all of the expected attributes are present.
+        """
+        RESOURCE_URL = "/api/organizers/organizer1/"
+
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_collection_validity(client, body)
+        assert body["collection"]["items"][0]["href"] == RESOURCE_URL
+        assert len(body["collection"]["items"]) == 1
+
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+
+    def test_put(self, client):
+        """
+        Tests the PUT method. Checks all of the possible error codes, and also
+        checks that a valid request receives a 204 response. Also tests that
+        when name is changed, the sensor can be found from a its new URI.
+        """
+        WRONG_EMAIL = "organizer12@helppo.fi"
+
+        valid = _get_organizer_template(email=WRONG_EMAIL)
+
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with invalid url
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+        
+        # test with another organizers's information
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # remove field for 400
+        valid["template"]["data"][0].pop("value")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+        # test with valid
+        valid = _get_organizer_template(email="good@email.com")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+
 
 
 

@@ -237,11 +237,6 @@ class EventItem(Resource):
             return create_error_response(404, "Event not found",
                                 "The API can not find the Event requested.")
 
-        if request.method != "PUT":
-            return "PUT method required", 405
-        else:
-            print("Editing Event information")
-
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
@@ -252,21 +247,38 @@ class EventItem(Resource):
             req = request.json
             new_name = get_value_for('name', req)
             new_description = get_value_for('description', req)
+            new_time = get_value_for('startTime', req)
 
         except KeyError:
             return create_error_response(400, "Incomplete request",
                             "Incomplete request - missing fields")
 
+
+        event_item.name = new_name
+        event_item.description = new_description
+        event_item.startTime = datetime.strptime(new_time, '%Y-%m-%dT%H:%M:%S')
+        event_item.set_url()
+
+        evs = Event.query.filter_by(url=event_item.url).all()
+        if evs is not None:
+            print(f"-------------------- EVS IS NOT NONE and LEN evs is {len(evs)}")
+            for e in evs:
+                print(e)
+            if len(evs) > 1 or evs[0] is not event_item:
+                print("-------------------- EVS.FIRST IS NOT EVENT_ITEM")
+
+                return create_error_response(409, "Event already exist",
+                                             "Event with same name, venue and time already exists.") 
+
         try:
-            event_item.name = new_name
-            event_item.description = new_description
             db.session.commit()
             resp = Response(status=204)
             resp.headers['location'] = url_for('api.eventitem', event_handle=event_item.url)
             return resp
         except Exception as e:
             print(e)
-            print("New venue cannot be added to database. Rolling back.")
+            print("New event cannot be added to database. Rolling back.")
+            db.session.rollback()
 
     def delete(self, event_handle):
         """
@@ -287,6 +299,7 @@ class EventItem(Resource):
         except Exception as e:
             print(e)
             print("Event cannot be deleted. Rolling back")
+            db.session.rollback()
             return create_error_response(400, "Database operation failed",
                                         "Product cannot be deleted. Rolling back.")
 

@@ -36,7 +36,11 @@ def create_app(test_config=None):
 
     from . import api
     app.register_blueprint(api.api_bp)
-
+    
+    @app.route("/admin/")
+    def admin_site():
+        return app.send_static_file("html/admin.html")
+    
     print("App initialization complete. Returning app.")
 
     return app

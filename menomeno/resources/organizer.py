@@ -60,18 +60,9 @@ class OrganizerItem(Resource):
             return create_error_response(404, "Organizer not found",
                                 "The API can not find the Organizer requested.")
 
-        if request.method != "PUT":
-            return "PUT method required", 405
-        else:
-            print("Editing Organizer information")
-
         try:
             json.loads(str(request.json).replace("\'", "\""))
         except (TypeError, ValueError) as e:
-            print("Problem with json formatting: {}. \n JSON provided was: \n {json.dumps(request.json)}".format(e))
-            return create_error_response(415, "Not JSON",
-                             "Request content type must be JSON")
-        except:
             return create_error_response(415, "Not JSON",
                              "Request content type must be JSON")
 
@@ -80,14 +71,16 @@ class OrganizerItem(Resource):
             new_name = get_value_for('name', req)
             new_email = get_value_for('email', req)
             new_password = get_value_for('password', req)
+            oldorg = Organizer.query.filter_by(email=new_email).all()
+            if len(oldorg) > 0:
+                if len(oldorg) > 1 or oldorg[0] is not organizer_item:
+                    return create_error_response(409, "Organizer email reserved",
+                                                "Proposed new email already taken by another user.")
+
 
         except KeyError:
             return create_error_response(400, "Incomplete request",
                             "Incomplete request - missing fields")
-
-        except ValueError:
-            return create_error_response(400, "Invalid types",
-                            "JSON body contains invalid information of invalid type.")
 
         try:
             organizer_item.name = new_name
@@ -100,4 +93,4 @@ class OrganizerItem(Resource):
         except Exception as e:
             print(e)
             print("Organizer information cannot be updated in database. Rolling back.")
-
+            db.session.rollback()
