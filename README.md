@@ -20,7 +20,11 @@ Then
 
     export FLASK_APP=menomeno
     export FLASK_ENV=development
+    
+    or using the script
 
+    source set_env.sh
+    
 ### Python version, dependencies and installation of the project
 
 The project is using Python version 3.6.8. The rest of the dependencies can be installed inside a virtual environment with:
@@ -31,7 +35,7 @@ To install the project
 
     pip install -e .
 
-Optionally, to initialize database and populate it with simple test data
+To initialize database and populate it with test data
 
     flask init-db
     flask populate-models
@@ -57,3 +61,4 @@ To work with ipython, need to push an application context. See https://flask-sql
 
 Flask application code structure and examples modeled after the [Flask tutorial](https://flask.palletsprojects.com/en/1.0.x/tutorial/) and its derivative [PWP Course material](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-summer-2019/). All other borrowed code is cleary indicated in code comments.
 
+The local Javascript & JQuery client is a generalized adaptation of one provided in course material.
