@@ -312,6 +312,9 @@ class VenueEvents(EventCollection):
     """
     def get(self, cityhandle, venue_handle):
         return super().get(cityhandle=cityhandle, venue_handle=venue_handle)
+    
+    def post(self, cityhandle, venue_handle):
+        return super().post()
 
 
 class OrganizerEvents(EventCollection):
@@ -321,3 +324,6 @@ class OrganizerEvents(EventCollection):
     """
     def get(self, organizer_handle):
         return super().get(organizer_handle=organizer_handle)
+
+    def post(self, organizer_handle):
+        return super().post()

@@ -132,8 +132,31 @@ function renderItemForm(ctrl, method) {
 
 // Function to render a single item in collection+json object
 function renderItem(body) {
-    let navistring = "<a href='" + domain + "/api/cities/" +
-    "' onClick='followLink(event, this, renderCollection)'>Start over</a>"
+    let navistring = "";
+    
+    try {
+        navistring += "<a href='" + body.collection.href +
+        "' onClick='followLink(event, this, renderCollection)'>Collection</a>"
+    } catch {}
+
+    try {
+        body.collection.links.forEach ( function (item) {
+            // This is a terrible hack manually checking
+            // if we should include links to collections or single items:
+            if (['cities/', 'events/', 'venues/'].indexOf(item.href.slice(-7)) >= 0) {
+                navistring += " | <a href='" + item.href +
+                        "' onClick='followLink(event, this, renderCollection)'>" +
+                        item.prompt + "</a>"
+            } else if (item.prompt == "Link to profile") {
+                navistring += " | <a href='" + item.href + "'>" +
+                item.prompt + "</a>"
+            } else {
+                navistring += " | <a href='" + item.href +
+                "' onClick='followLink(event, this, renderItem)'>" +
+                item.prompt + "</a>"         
+            }
+        });    
+    } catch(err) {}
 
     console.log(body.collection.items[0].links);
     body.collection.items[0].links.forEach ( function (item) {
@@ -193,11 +216,15 @@ function renderCollection(body) {
     $("div.navigation").empty();
     $("div.tablecontrols").empty();
 
-    let navistring = "<a href='" + domain + "/api/cities/" +
-    "' onClick='followLink(event, this, renderCollection)'>Start over</a>"
+    let navistring = "";
+    try {
+        navistring += "<a href='" + body.collection.href +
+        "' onClick='followLink(event, this, renderCollection)'>Collection</a>"
+    } catch {}
 
     body.collection.links.forEach ( function (item) {
-        // This is a terrible hack:
+        // This is a terrible hack manually checking
+        // if we should include links to collections or single items:
         if (['cities/', 'events/', 'venues/'].indexOf(item.href.slice(-7)) >= 0) {
             navistring += " | <a href='" + item.href +
                     "' onClick='followLink(event, this, renderCollection)'>" +
@@ -210,7 +237,6 @@ function renderCollection(body) {
             "' onClick='followLink(event, this, renderItem)'>" +
             item.prompt + "</a>"         
         }
-
     });
 
     $("div.navigation").empty();

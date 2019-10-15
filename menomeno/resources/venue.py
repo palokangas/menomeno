@@ -17,7 +17,6 @@ class VenueCollection(Resource):
     def get(self, cityhandle):
         """ Creates a response object for GET requests"""
 
-
         print(request.headers)
 
         city_item = City.query.filter_by(name=cityhandle).first()
