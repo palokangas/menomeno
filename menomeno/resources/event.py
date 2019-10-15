@@ -118,7 +118,11 @@ class EventCollection(Resource):
             organizername = get_value_for('organizer', req)
             starttime_string = get_value_for('startTime', req)
 
-            starttime = datetime.strptime(starttime_string, '%Y-%m-%dT%H:%M:%S')
+            try:
+                starttime = datetime.strptime(starttime_string, '%Y-%m-%dT%H:%M:%S')
+            except ValueError:
+                return create_error_response(400, "Wrong time format",
+                                "Time was passed in wrong format")
 
             # Category is not implemented. Using just on category for all
             category = Category.query.first()
@@ -187,7 +191,7 @@ class EventItem(Resource):
         col = CollectionBuilder()
         col_links = []
         col_links.append(col.create_link("profile", PROFILE_URL, "Link to profile"))
-        col.create_collection(url_for("api.eventitem", event_handle=event_handle), col_links)
+        col.create_collection(url_for("api.eventcollection"), col_links)
 
         eventdata = []
         eventdata.append(col.create_data("name", event_item.name, "Event name"))
@@ -217,8 +221,8 @@ class EventItem(Resource):
         col.add_template_data(col.create_data("description", event_item.description, "Event description"))
         col.add_template_data(col.create_data("startTime", event_item.startTime.isoformat(), "Start time of the Event"))
         col.add_template_data(col.create_data("organizer", event_item.organizer.name, "Organizer of the Event"))
-        col.add_template_data(col.create_data("venue", event_item.venue.name, "Start time of the Event"))
-        col.add_template_data(col.create_data("city", event_item.venue.city.name, "Start time of the Event"))
+        col.add_template_data(col.create_data("venue", event_item.venue.name, "Venue of the Event"))
+        col.add_template_data(col.create_data("city", event_item.venue.city.name, "City of the Event"))
 
         print(col)
         return Response(json.dumps(col), 200, mimetype=MIMETYPE)
@@ -261,12 +265,9 @@ class EventItem(Resource):
 
         evs = Event.query.filter_by(url=event_item.url).all()
         if evs is not None:
-            print(f"-------------------- EVS IS NOT NONE and LEN evs is {len(evs)}")
             for e in evs:
                 print(e)
             if len(evs) > 1 or evs[0] is not event_item:
-                print("-------------------- EVS.FIRST IS NOT EVENT_ITEM")
-
                 return create_error_response(409, "Event already exist",
                                              "Event with same name, venue and time already exists.") 
 

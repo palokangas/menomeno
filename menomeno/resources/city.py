@@ -35,7 +35,7 @@ class CityCollection(Resource):
                                         (url_for("api.venuecollection", cityhandle = city_item.name.lower())),
                                         "Venues in City")
 
-            col.add_item(url_for("api.citycollection"),
+            col.add_item(url_for("api.cityitem", cityhandle=city_item.name),
                                  [citydata],
                                  [citylinks])
 
@@ -121,7 +121,7 @@ class CityItem(Resource):
                                 [citydata],
                                 [citylinks])
 
-        templatedata = col.create_data("name", "", "Name of the City")
+        templatedata = col.create_data("name", city_item.name, "Name of the City")
         col.add_template_data(templatedata)
 
         return Response(json.dumps(col), 200, mimetype=MIMETYPE)

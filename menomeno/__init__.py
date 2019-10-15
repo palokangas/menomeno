@@ -1,6 +1,6 @@
 import os
 import click
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -37,9 +37,22 @@ def create_app(test_config=None):
     from . import api
     app.register_blueprint(api.api_bp)
     
-    @app.route("/admin/")
-    def admin_site():
-        return app.send_static_file("html/admin.html")
+    @app.route("/cities/")
+    def cities_site():
+        return app.send_static_file("html/collection.html")
+
+    @app.route("/events/")
+    def events_site():
+        return app.send_static_file("html/collection.html")
+
+    @app.route("/cities/<cityhandle>/venues/")
+    def venues_site(cityhandle):
+        return app.send_static_file("html/collection.html")
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(os.path.join(app.root_path, 'static'),
+                            'favicon.ico',mimetype='image/vnd.microsoft.icon')
     
     print("App initialization complete. Returning app.")
 

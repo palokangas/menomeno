@@ -34,3 +34,5 @@ def entry():
     "\n But you can always try pointing your focus on <a" \
     " href=\"/api/cities\">cities</a> for starters.")
 
+import os
+from flask import send_from_directory
