@@ -36,7 +36,7 @@ def create_app(test_config=None):
 
     from . import api
     app.register_blueprint(api.api_bp)
-    
+
     @app.route("/cities/")
     def cities_site():
         return app.send_static_file("html/collection.html")
@@ -53,8 +53,10 @@ def create_app(test_config=None):
     def favicon():
         return send_from_directory(os.path.join(app.root_path, 'static'),
                             'favicon.ico',mimetype='image/vnd.microsoft.icon')
-    
+
     print("App initialization complete. Returning app.")
 
     return app
 
+
+app = create_app()
