@@ -48,6 +48,16 @@ To run test, either:
     # To run tests with coverage information
     ./testcov.sh
 
+### Accessing api and client
+
+Api can be accessed from the cities resource:
+
+    /api/cities/
+
+The local web client is HTML, Bootstrap, JS and JQuery. The startpoint is at:
+
+    /cities/
+
 ### Ipython
 
 To work with ipython, need to push an application context. See https://flask-sqlalchemy.palletsprojects.com/en/2.x/contexts/:

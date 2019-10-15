@@ -15,7 +15,12 @@ class VenueCollection(Resource):
     """
 
     def get(self, cityhandle):
-        """ Creates a response object for GET requests"""
+        """
+        Creates a response object for GET requests, exposing
+        venues of a given city.
+        
+        :param str cityhandle: name of the city
+        """
 
         print(request.headers)
 
@@ -64,7 +69,7 @@ class VenueCollection(Resource):
         """
         Adds a new venue to database. In real life, this requires admin token,
         which is not implemented here. Reads json information from request
-        object.
+        object: venuename and venueurl
 
         : param str cityhandle: name of the city to add venue in
         """
@@ -116,7 +121,8 @@ class VenueItem(Resource):
 
     def get(self, cityhandle, venue_handle):
         """
-        Creates a response object for GET requests
+        Creates a response object for GET requests and error responses
+        for failed requests.
 
         : param str cityhandle: name of the city
         : param str venue_handle: name of the venue
@@ -165,7 +171,8 @@ class VenueItem(Resource):
 
     def put(self, cityhandle, venue_handle):
         """
-        Function for editing venue information. Gets values from Request,
+        Function for editing venue information. Gets values from Request:
+        venue name and venue url.
         returns 204 with location header for successful edit and
         error messages for failed edits.
 

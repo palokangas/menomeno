@@ -100,7 +100,7 @@ class EventCollection(Resource):
     def post(self):
         """
         Adds a new event to database. Reads json information from request
-        object.
+        object: name, description, venue, city, organizer and startTime
         """
 
         try:
@@ -229,9 +229,10 @@ class EventItem(Resource):
 
     def put(self, event_handle):
         """
-        Function for editing event information. Gets values from Request,
-        returns 204 with location header for successful edit and
-        error messages for failed edits.
+        Function for editing event information. Gets values from Request:
+        name, description, startTime, organizer, venue and city.
+        Returns 204 with location header for successful edit and
+        error responses for failed edits.
 
         : param str event_handle: url base of the venue
         """
@@ -283,7 +284,8 @@ class EventItem(Resource):
 
     def delete(self, event_handle):
         """
-        Function for deleting event information.
+        Function for deleting event information. Returns 204 for
+        successful delete, error responses for failed attemps.
 
         : param str event_handle: url base of the venue
         """

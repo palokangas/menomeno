@@ -9,12 +9,13 @@ from menomeno import db
 
 class OrganizerItem(Resource):
     """
-    Class representing single organizer resource. GET and PUt are supported methods.
+    Class representing single organizer resource. GET and PUT are supported methods.
     """
 
     def get(self, organizer_handle):
         """
-        Creates a response object for GET requests
+        Creates a response object for GET requests and error 
+        responses for failed attempts.
 
         : param str organizer_handle: organizer name
         """
@@ -48,9 +49,11 @@ class OrganizerItem(Resource):
 
     def put(self, organizer_handle):
         """
-        Function for editing organizer information. Gets values from Request,
-        returns 204 with location header for successful edit and
-        error messages for failed edits.
+        Function for editing organizer information. Gets values from Request:
+        organizer name, email and password.
+        
+        Returns 204 with location header for successful edit and
+        error responses for failed edits.
 
         : param str organizer_handle: organizer name
         """

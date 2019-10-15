@@ -5,6 +5,8 @@ LINK_RELATIONS_URL = ""
 STORAGE_PROFILE = ""
 COLLECTION_JSON_VERSION = "1.0"
 
+# CollectionBuilder is based on code in the course material
+# just adapted to work with collection+json
 
 class CollectionBuilder(dict):
     """
@@ -17,7 +19,7 @@ class CollectionBuilder(dict):
         """
         : param str rel: name of the link relation item
         : param str value: uri of the link item item
-        : param str promp: description of the link item
+        : param str prompt: description of the link item
         """
 
         return {'rel': rel, 'href': href, 'prompt': prompt}
@@ -92,7 +94,10 @@ class CollectionBuilder(dict):
             print("KeyError. Did you forget to create the collection?")
 
     def add_template_data(self, data):
-
+        """
+        Function for adding data objects inside collection+json
+        data array.
+        """
         try:
             if "template" not in self["collection"]:
                 self["collection"]["template"] = {"data": []}
@@ -119,6 +124,9 @@ class CollectionBuilder(dict):
             print("KeyError. Did you forget to create the collection?")
 
 def create_error_response(status_code, title, message=None):
+    """
+    Function for creating a descriptive error response
+    """
     resource_url = request.path
     body = CollectionBuilder()
     body.create_collection(resource_url)
@@ -126,6 +134,9 @@ def create_error_response(status_code, title, message=None):
     return Response(json.dumps(body), status_code, mimetype=MIMETYPE)
 
 def get_value_for(json_field, template_object):
+    """
+    Helper function for accessing values in collection+json data objects.
+    """
     try:
         json_list = template_object['template']['data']
         target = next(item for item in json_list if item['name'] == json_field)
@@ -133,7 +144,7 @@ def get_value_for(json_field, template_object):
     except KeyError:
         raise KeyError
 
-
+# I ended up not using this.
 class MenoBuilder(CollectionBuilder):
     """
     A class for creating collection+json objects for events

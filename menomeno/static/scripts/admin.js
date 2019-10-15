@@ -1,3 +1,6 @@
+// This client is entirely based on the one provided in the course material
+// I have generalized it to work with diverse collection+json objects
+
 "use strict";
 
 // TODO:
