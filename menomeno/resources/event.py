@@ -164,7 +164,8 @@ class EventCollection(Resource):
             db.session.add(newevent)
             db.session.commit()
             resp=Response(status=201)
-            resp.headers['location']=url_for('api.eventitem', event_handle=newevent.url)
+            resp.headers['Location']=url_for('api.eventitem', event_handle=newevent.url)
+            resp.headers['Access-Control-Expose-Headers'] = 'Location'
             return resp
         except:
             print("Commit failed. Rolling back.")
@@ -220,10 +221,10 @@ class EventItem(Resource):
         col.add_template_data(col.create_data("name", event_item.name, "Event name"))
         col.add_template_data(col.create_data("description", event_item.description, "Event description"))
         col.add_template_data(col.create_data("startTime", event_item.startTime.isoformat(), "Start time of the Event"))
-        col.add_template_data(col.create_data("organizer", event_item.organizer.name, "Organizer of the Event"))
-        col.add_template_data(col.create_data("venue", event_item.venue.name, "Venue of the Event"))
-        col.add_template_data(col.create_data("city", event_item.venue.city.name, "City of the Event"))
-
+        #col.add_template_data(col.create_data("organizer", event_item.organizer.name, "Organizer of the Event"))
+        #col.add_template_data(col.create_data("venue", event_item.venue.name, "Venue of the Event"))
+        #col.add_template_data(col.create_data("city", event_item.venue.city.name, "City of the Event"))
+ 
         print(col)
         return Response(json.dumps(col), 200, mimetype=MIMETYPE)
 
@@ -275,7 +276,8 @@ class EventItem(Resource):
         try:
             db.session.commit()
             resp = Response(status=204)
-            resp.headers['location'] = url_for('api.eventitem', event_handle=event_item.url)
+            resp.headers['Location'] = url_for('api.eventitem', event_handle=event_item.url)
+            resp.headers['Access-Control-Expose-Headers'] = 'Location'
             return resp
         except Exception as e:
             print(e)

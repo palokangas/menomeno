@@ -54,7 +54,7 @@ class VenueCollection(Resource):
             venuelinks = []
             venuelinks.append(col.create_link("events-in",
                                         url_for("api.venueevents", cityhandle=city_item.name, venue_handle=venue_item.name),
-                                        "Venues in City"))
+                                        "Events in City"))
 
             col.add_item(url_for("api.venueitem", cityhandle = city_item.name, venue_handle=venue_item.name),
                                  venuedata,
@@ -106,7 +106,8 @@ class VenueCollection(Resource):
             db.session.add(new_venue)
             db.session.commit()
             resp = Response(status=201)
-            resp.headers['location']= url_for('api.venueitem', cityhandle=city_item.name, venue_handle=new_venue.name)
+            resp.headers['Location']= url_for('api.venueitem', cityhandle=city_item.name, venue_handle=new_venue.name)
+            resp.headers['Access-Control-Expose-Headers'] = 'Location'
             return resp
         except Exception as e:
             print(e)
@@ -214,7 +215,8 @@ class VenueItem(Resource):
             oldvenue.url = new_url
             db.session.commit()
             resp = Response(status=204)
-            resp.headers['location']= url_for('api.venueitem', cityhandle=city_item.name, venue_handle=oldvenue.name)
+            resp.headers['Location']= url_for('api.venueitem', cityhandle=city_item.name, venue_handle=oldvenue.name)
+            resp.headers['Access-Control-Expose-Headers'] = 'Location'
             return resp
         except Exception as e:
             print(e)

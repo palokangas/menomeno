@@ -32,7 +32,7 @@ class CityCollection(Resource):
                                        city_item.name,
                                        prompt="City name")
             citylinks = col.create_link("venues-in",
-                                        (url_for("api.venuecollection", cityhandle = city_item.name.lower())),
+                                        (url_for("api.venuecollection", cityhandle = city_item.name)),
                                         "Venues in City")
 
             col.add_item(url_for("api.cityitem", cityhandle=city_item.name),
@@ -80,7 +80,9 @@ class CityCollection(Resource):
             db.session.add(new_city)
             db.session.commit()
             resp = Response(status=201)
-            resp.headers['location']= url_for('api.cityitem', cityhandle=new_city.name)
+            resp.headers['Location']= url_for('api.cityitem', cityhandle=new_city.name)
+            resp.headers['Access-Control-Expose-Headers'] = 'Location'
+            resp.headers['Access-Control-Allow-Origin'] = '*'
             return resp
         except Exception as e:
             print(e)
@@ -168,7 +170,8 @@ class CityItem(Resource):
             oldcity.name = cityname
             db.session.commit()
             resp = Response(status=204)
-            resp.headers['location']= url_for('api.cityitem', cityhandle=cityname)
+            resp.headers['Location']= url_for('api.cityitem', cityhandle=cityname)
+            resp.headers['Access-Control-Expose-Headers'] = 'Location'
             return resp
         except Exception as e:
             print(e)

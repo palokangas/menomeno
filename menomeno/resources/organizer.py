@@ -91,7 +91,8 @@ class OrganizerItem(Resource):
             organizer_item.password = new_password
             db.session.commit()
             resp = Response(status=204)
-            resp.headers['location'] = url_for('api.organizeritem', organizer_handle=organizer_item.name)
+            resp.headers['Location'] = url_for('api.organizeritem', organizer_handle=organizer_item.name)
+            resp.headers['Access-Control-Expose-Headers'] = 'Location'
             return resp
         except Exception as e:
             print(e)

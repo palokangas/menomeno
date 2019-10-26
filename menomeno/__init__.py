@@ -2,12 +2,14 @@ import os
 import click
 from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 db = SQLAlchemy()
 
 # Based on course material
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True, static_folder="static")
+    CORS(app)
     app.config.from_mapping(
         SECRET_KEY="dev",
         SQLALCHEMY_DATABASE_URI="sqlite:///" + os.path.join(app.instance_path, "development.db"),
