@@ -58,6 +58,8 @@ The local web client is HTML, Bootstrap, JS and JQuery. The startpoint is at:
 
     /cities/
 
+(Update: there is also a React client at http://github.com/palokangas/eventbrowser/ )
+
 ### Ipython
 
 To work with ipython, need to push an application context. See https://flask-sqlalchemy.palletsprojects.com/en/2.x/contexts/:
